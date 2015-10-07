@@ -25,9 +25,9 @@ class Chef
       attribute :conf_options, kind_of: Hash, default: {}
 
       # RUNIT
-      attribute :runit_args, kind_of: Hash, default: {}
-      attribute :runit_options, kind_of: Hash, default: {}
-      attribute :runit_env, kind_of: Hash, default: {}
+
+
+
     end
   end
 end

@@ -11,4 +11,3 @@ version '0.3.4'
 end
 
 depends 'ark'
-depends 'runit', '= 1.5.18'
