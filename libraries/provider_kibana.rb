@@ -24,7 +24,7 @@ class Chef
           prefix_root new_resource.path
           url new_resource.url
           version new_resource.version
-          notifies :restart, "runit_service[#{service_name}]", :delayed
+          notifies :restart, "service[#{service_name}]", :delayed
         end
 
         template "#{home_dir}/config/kibana.yml" do
@@ -57,59 +57,48 @@ class Chef
             'user' => new_resource.user,
             'verify_ssl' => new_resource.verify_ssl
           }.merge(new_resource.conf_options)
-          notifies :restart, "runit_service[#{service_name}]", :delayed
+          notifies :restart, "service[#{service_name}]", :delayed
         end
 
         # RUNIT
-        runit_service service_name do
-          default_logger true
-          owner new_resource.user
-          group new_resource.group
-          cookbook new_resource.source
-          env new_resource.runit_env
-          options new_resource.runit_options.merge(
-            'home_dir' => home_dir,
-            'user' => new_resource.user,
-            'group' => new_resource.group,
-            'config_file' => "#{home_dir}/config/kibana.yml"
-          )
-          action [:create, :enable]
+        service service_name do
+          action [:enable, :enable]
         end
       end
 
       action :remove do
-        runit_service service_name do
+        service service_name do
           action :stop
         end
       end
 
       ## SERVICES
       action :enable do
-        runit_service service_name do
+        service service_name do
           action :enable
         end
       end
 
       action :disable do
-        runit_service service_name do
+        service service_name do
           action :disable
         end
       end
 
       action :start do
-        runit_service service_name do
+        service service_name do
           action :start
         end
       end
 
       action :stop do
-        runit_service service_name do
+        service service_name do
           action :stop
         end
       end
 
       action :restart do
-        runit_service service_name do
+        service service_name do
           action :restart
         end
       end

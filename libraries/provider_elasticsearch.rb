@@ -24,7 +24,7 @@ class Chef
           prefix_root new_resource.path
           url new_resource.url
           version new_resource.version
-          notifies :restart, "runit_service[#{service_name}]", :delayed
+          notifies :restart, "service[#{service_name}]", :delayed
         end
 
         template "#{home_dir}/config/logging.yml" do
@@ -36,7 +36,7 @@ class Chef
           variables options: {
             'datadir' => new_resource.datadir
           }.merge(new_resource.conf_options)
-          notifies :restart, "runit_service[#{service_name}]", :delayed
+          notifies :restart, "service[#{service_name}]", :delayed
         end
 
         template "#{home_dir}/config/elasticsearch.yml" do
@@ -48,7 +48,7 @@ class Chef
           variables options: {
             'datadir' => new_resource.datadir
           }.merge(new_resource.conf_options)
-          notifies :restart, "runit_service[#{service_name}]", :delayed
+          notifies :restart, "service[#{service_name}]", :delayed
         end
 
         env_defaults = {
@@ -73,18 +73,8 @@ class Chef
         }
 
         # TODO: signal for changes
-        runit_service service_name do
-          default_logger true
-          owner new_resource.user
-          group new_resource.group
-          cookbook new_resource.source
-          env env_defaults.merge(new_resource.runit_env)
-          options new_resource.runit_options.merge(
-            'home_dir' => home_dir,
-            'user' => new_resource.user,
-            'group' => new_resource.group
-          )
-          action [:create, :enable]
+        service service_name do
+          action [:start, :enable]
         end
       end
 

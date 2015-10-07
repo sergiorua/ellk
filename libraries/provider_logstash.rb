@@ -33,7 +33,7 @@ class Chef
           prefix_root new_resource.path
           url new_resource.url
           version new_resource.version
-          notifies :restart, "runit_service[#{service_name}]", :delayed
+          notifies :restart, "service[#{service_name}]", :delayed
         end
 
         template "#{home_dir}/config/logging.yml" do
@@ -43,7 +43,7 @@ class Chef
           mode '0644'
           cookbook new_resource.source
           variables options: new_resource.conf_options
-          notifies :restart, "runit_service[#{service_name}]", :delayed
+          notifies :restart, "service[#{service_name}]", :delayed
         end
 
         template "#{home_dir}/config/logstash.conf" do
@@ -57,7 +57,7 @@ class Chef
             'key_location' => new_resource.key_location,
             'crt_location' => new_resource.crt_location
           }.merge(new_resource.conf_options)
-          notifies :restart, "runit_service[#{service_name}]", :delayed
+          notifies :restart, "service[#{service_name}]", :delayed
         end
 
         env_defaults = {
@@ -77,24 +77,13 @@ class Chef
         }
 
         # TODO: signal for changes
-        runit_service service_name do
-          default_logger true
-          owner new_resource.user
-          group new_resource.group
-          cookbook new_resource.source
-          env env_defaults.merge(new_resource.runit_env)
-          options new_resource.conf_options.merge(
-            'home_dir' => home_dir,
-            'user' => new_resource.user,
-            'group' => new_resource.group,
-            'config_file' => 'config/logstash.conf'
-          )
-          action [:create, :enable]
+        service service_name do
+          action [:start, :enable]
         end
       end
 
       action :remove do
-        runit_service service_name do
+        service service_name do
           action :stop
         end
       end

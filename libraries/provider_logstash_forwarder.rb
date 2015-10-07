@@ -21,7 +21,7 @@ class Chef
           mode '0755'
           recursive true
           action :create
-          notifies :restart, "runit_service[#{service_name}]", :delayed
+          notifies :restart, "service[#{service_name}]", :delayed
         end
 
         remote_file "#{home_dir}/logstash-forwarder" do
@@ -30,7 +30,7 @@ class Chef
           mode '0755'
           source new_resource.url
           checksum new_resource.checksum
-          notifies :restart, "runit_service[#{service_name}]", :delayed
+          notifies :restart, "service[#{service_name}]", :delayed
         end
 
         template "#{home_dir}/logstash-forwarder.conf" do
@@ -46,26 +46,16 @@ class Chef
             'logstash_servers' => new_resource.logstash_servers,
             'timeout' => new_resource.timeout
           }.merge(new_resource.conf_options)
-          notifies :restart, "runit_service[#{service_name}]", :delayed
+          notifies :restart, "service[#{service_name}]", :delayed
         end
 
-        runit_service service_name do
-          default_logger true
-          owner new_resource.user
-          group new_resource.group
-          cookbook new_resource.source
-          options new_resource.runit_options.merge(
-            'home_dir' => home_dir,
-            'user' => new_resource.user,
-            'group' => new_resource.group,
-            'config_file' => 'logstash-forwarder.conf'
-          )
-          action [:create, :enable]
+        service service_name do
+          action [:start, :enable]
         end
       end
 
       action :remove do
-        runit_service service_name do
+        service service_name do
           action :stop
         end
 
